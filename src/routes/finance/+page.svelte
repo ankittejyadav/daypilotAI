@@ -1,5 +1,8 @@
 <script>
-    import { alerts, bills, transactions } from '$lib/data';
+    let { data } = $props();
+    const alerts = $derived(data.alerts || []);
+    const bills = $derived(data.bills || []);
+    import { transactions } from '$lib/data'; // Still mock, not in schema yet
 </script>
 
 <div class="finance-page">
@@ -7,6 +10,16 @@
         <p class="label-sm">Today's Focus</p>
         <h1 class="headline-font">Financial Health</h1>
     </header>
+
+    {#if !data.user}
+        <section class="demo-banner">
+            <div class="banner-content">
+                <span class="material-symbols-outlined">sparkles</span>
+                <p><strong>Demo Mode Active:</strong> Showing sample financial data. Connect your bank to track real expenses.</p>
+            </div>
+            <a href="/login" class="connect-link">Login to Connect</a>
+        </section>
+    {/if}
 
     <section class="section">
         <div class="section-title">

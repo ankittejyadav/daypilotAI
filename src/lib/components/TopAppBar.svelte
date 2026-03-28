@@ -15,7 +15,7 @@
     </div>
     <div class="actions">
         {#if !user}
-            <a href="/api/auth/google" class="login-link">Login</a>
+            <a href="/login" class="login-link">Login</a>
         {:else}
             <a href="/api/auth/logout" class="logout-link">Logout</a>
         {/if}

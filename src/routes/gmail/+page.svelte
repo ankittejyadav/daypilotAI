@@ -1,5 +1,10 @@
 <script>
-    import { commitments, emails } from '$lib/data';
+    import { commitments as mockCommitments, emails as mockEmails } from '$lib/data';
+
+    let { data } = $props();
+
+    const emails = $derived(data.isAuthenticated ? data.emails : mockEmails);
+    const commitments = $derived(data.isAuthenticated ? data.commitments : mockCommitments);
 </script>
 
 <div class="gmail-page">
@@ -8,28 +13,45 @@
         <h1 class="headline-font">Inbox Insights</h1>
     </header>
 
+    {#if !data.isAuthenticated}
+        <section class="demo-banner">
+            <div class="banner-content">
+                <span class="material-symbols-outlined">sparkles</span>
+                <p><strong>Demo Mode Active:</strong> Showing sample inbox data. Connect Gmail to sync your real threads.</p>
+            </div>
+            <a href="/api/auth/google" class="connect-link">Connect Gmail</a>
+        </section>
+    {/if}
+
     <section class="section">
         <h2 class="headline-font">Urgent Commitments</h2>
         <div class="commitments-list">
-            {#each commitments as c}
-                <div class="commitment-card" class:urgent={c.urgent}>
-                    <div class="card-header">
-                        <span class="sender">{c.sender}</span>
-                        <span class="time">{c.time}</span>
-                    </div>
-                    <div class="card-body">
-                        <h3 class="subject">{c.subject}</h3>
-                        <p class="summary">{c.summary}</p>
-                    </div>
-                    {#if c.urgent}
-                        <div class="urgent-badge">Action Required</div>
-                    {/if}
+            {#if commitments.length === 0}
+                <div class="empty-state">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <p>No urgent commitments found in your recent activity.</p>
                 </div>
-            {/each}
+            {:else}
+                {#each commitments as c}
+                    <div class="commitment-card" class:urgent={c.urgent}>
+                        <div class="card-header">
+                            <span class="sender">{c.sender}</span>
+                            <span class="time">{c.time}</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="subject">{c.subject}</h3>
+                            <p class="summary">{c.summary}</p>
+                        </div>
+                        {#if c.urgent}
+                            <div class="urgent-badge">Action Required</div>
+                        {/if}
+                    </div>
+                {/each}
+            {/if}
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" class:muted={!data.isAuthenticated}>
         <div class="flex-between">
             <h2 class="headline-font">Recent Activity</h2>
         </div>
@@ -145,4 +167,88 @@
     .email-preview { font-size: 0.875rem; color: var(--on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
 
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+    /* Auth & Empty State Styles */
+    .auth-section {
+        background: var(--surface-container-low);
+        border-radius: var(--radius-3xl);
+        padding: 3rem 2rem;
+        text-align: center;
+        border: 2px dashed var(--outline-variant);
+        margin-bottom: 2rem;
+    }
+
+    .auth-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        max-width: 440px;
+        margin: 0 auto;
+    }
+
+    .auth-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--primary-container);
+        color: var(--primary);
+        border-radius: var(--radius-2xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .auth-icon .material-symbols-outlined { font-size: 32px; }
+
+    .auth-card p {
+        color: var(--on-surface-variant);
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+
+    .auth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        width: 100%;
+        max-width: 280px;
+        border: none;
+        background: linear-gradient(135deg, var(--primary), var(--primary-container));
+        color: white;
+        padding: 1rem;
+        border-radius: var(--radius-xl);
+        font-weight: 800;
+        font-size: 0.875rem;
+        box-shadow: 0 8px 32px rgba(11, 26, 125, 0.2);
+    }
+
+    .muted {
+        opacity: 0.5;
+        pointer-events: none;
+        filter: grayscale(0.5);
+    }
+
+    .empty-state {
+        padding: 3rem;
+        text-align: center;
+        background: var(--surface-container-lowest);
+        border-radius: var(--radius-2xl);
+        color: var(--outline);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .empty-state .material-symbols-outlined {
+        font-size: 48px;
+        opacity: 0.3;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
 </style>

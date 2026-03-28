@@ -1,9 +1,11 @@
 -- DayPilot AI PostgreSQL Schema
 
 -- Users Table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    username VARCHAR(255) UNIQUE,
+    password_hash TEXT,
     email VARCHAR(255) UNIQUE NOT NULL,
     avatar_url TEXT,
     google_access_token TEXT,
@@ -13,7 +15,7 @@ CREATE TABLE users (
 );
 
 -- Insights Table (Bento Dashboard)
-CREATE TABLE insights (
+CREATE TABLE IF NOT EXISTS insights (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     category VARCHAR(50) NOT NULL, -- Email, Calendar, Finance, Tasks
@@ -26,7 +28,7 @@ CREATE TABLE insights (
 );
 
 -- Financial Alerts Table
-CREATE TABLE financial_alerts (
+CREATE TABLE IF NOT EXISTS financial_alerts (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     title VARCHAR(255) NOT NULL,
@@ -39,7 +41,7 @@ CREATE TABLE financial_alerts (
 );
 
 -- Bills Table
-CREATE TABLE bills (
+CREATE TABLE IF NOT EXISTS bills (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     category VARCHAR(100),
@@ -50,7 +52,7 @@ CREATE TABLE bills (
 );
 
 -- Tasks Table
-CREATE TABLE tasks (
+CREATE TABLE IF NOT EXISTS tasks (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     title VARCHAR(255) NOT NULL,
@@ -62,7 +64,7 @@ CREATE TABLE tasks (
 );
 
 -- Calendar Events Table
-CREATE TABLE calendar_events (
+CREATE TABLE IF NOT EXISTS calendar_events (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     title VARCHAR(255) NOT NULL,

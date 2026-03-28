@@ -127,3 +127,37 @@ h1, h2, h3, h4, .headline-font {
 .icon-fill {
     font-variation-settings: 'FILL' 1;
 }
+
+/* Demo Banner Components */
+.demo-banner {
+    background: var(--secondary-container);
+    color: var(--on-secondary-container);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    border: 1px solid var(--outline-variant);
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.connect-link {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+    background: white;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    transition: all 0.2s ease;
+}
+
+.connect-link:hover {
+    background: var(--primary-fixed);
+    transform: translateY(-1px);
+}

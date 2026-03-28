@@ -87,6 +87,7 @@ export interface Task {
 
 export const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/' },
+    { id: 'chat', label: 'AI Assistant', icon: 'smart_toy', href: '/chat' },
     { id: 'gmail', label: 'Email', icon: 'mail', href: '/gmail' },
     { id: 'calendar', label: 'Calendar', icon: 'calendar_today', href: '/calendar' },
     { id: 'finance', label: 'Finance', icon: 'payments', href: '/finance' },

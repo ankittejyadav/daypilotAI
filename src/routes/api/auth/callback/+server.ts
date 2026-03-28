@@ -10,10 +10,12 @@ export const GET = async ({ url }: RequestEvent) => {
         throw error(500, 'Google OAuth is not configured. Please add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env file.');
     }
 
+    const redirectUri = `${url.origin}/api/auth/callback`;
+
     const oauth2Client = new google.auth.OAuth2(
         env.GOOGLE_CLIENT_ID,
         env.GOOGLE_CLIENT_SECRET,
-        env.GOOGLE_REDIRECT_URL || 'http://localhost:5173/api/auth/callback'
+        redirectUri
     );
 
     const code = url.searchParams.get('code');
