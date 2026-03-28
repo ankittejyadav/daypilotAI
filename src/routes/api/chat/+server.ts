@@ -29,7 +29,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
         console.error('Chat API Error:', error);
         return json({ 
             error: 'Failed to process AI request',
-            details: error instanceof Error ? error.message : 'Unknown error'
+            details: error instanceof Error ? error.message : 'Unknown error',
+            hint: 'Please check your GEMINI_API_KEY in the .env file.'
         }, { status: 500 });
     }
 }

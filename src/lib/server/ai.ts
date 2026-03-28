@@ -5,7 +5,10 @@ import * as mockData from '../data';
 import { query } from './db';
 
 // Initialize Gemini
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY || '');
+const API_KEY = env.GEMINI_API_KEY;
+const IS_KEY_VALID = API_KEY && API_KEY !== 'REPLACE_WITH_YOUR_GEMINI_API_KEY';
+
+const genAI = new GoogleGenerativeAI(IS_KEY_VALID ? API_KEY : 'dummy_key');
 const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
     tools: [
@@ -114,7 +117,42 @@ const model = genAI.getGenerativeModel({
     ]
 });
 
+/**
+ * Provides a mock response for the AI assistant when the Gemini API is unavailable.
+ * Uses keywords to detect intent and formats responses using mock data.
+ */
+const getMockResponse = (message: string, history: any[]) => {
+    const msg = message.toLowerCase();
+    let response = "I'm currently in **Demo Mode** because no Gemini API key was found in the `.env` file. ";
+    
+    if (msg.includes('task') || msg.includes('todo')) {
+        const taskList = mockData.tasks.map(t => `- [${t.status === 'done' ? 'x' : ' '}] **${t.title}** (${t.priority} priority, due ${t.due})`).join('\n');
+        response += `\n\nHere are your current tasks:\n${taskList}`;
+    } else if (msg.includes('calendar') || msg.includes('event') || msg.includes('meeting')) {
+        const events = mockData.timeline.map(e => `- **${e.time}**: ${e.title} (${e.team})`).join('\n');
+        response += `\n\nHere's your schedule for today:\n${events}`;
+    } else if (msg.includes('email') || msg.includes('mail')) {
+        const emails = mockData.emails.map(e => `- **From ${e.sender}**: ${e.subject}`).join('\n');
+        response += `\n\nI found these recent emails for you:\n${emails}`;
+    } else if (msg.includes('finance') || msg.includes('bill') || msg.includes('money')) {
+        const bills = mockData.bills.map(b => `- **${b.category}**: $${b.amount.toFixed(2)} on ${b.date}`).join('\n');
+        response += `\n\nHere are your upcoming bills:\n${bills}`;
+    } else {
+        response += "\n\nI can help you manage your tasks, check your calendar, or look through your emails. Try asking about 'my tasks' or 'my calendar'!";
+    }
+
+    return {
+        response,
+        history: [...history, { role: 'user', parts: [{ text: message }] }, { role: 'model', parts: [{ text: response }] }]
+    };
+};
+
 export const chatWithAI = async (request: Request, history: any[], message: string, userId?: number) => {
+    if (!IS_KEY_VALID) {
+        console.log('AI falling back to Mock Mode (API Key missing or placeholder).');
+        return getMockResponse(message, history);
+    }
+    
     const google = getGoogleClient(request);
     
     // We don't throw an error here anymore to allow Demo Mode with mock data
@@ -122,12 +160,19 @@ export const chatWithAI = async (request: Request, history: any[], message: stri
 
     const chat = model.startChat({
         history: history.map(h => ({
-            role: h.role === 'assistant' ? 'model' : h.role, // Fix role name for Gemini
-            parts: [{ text: h.content }]
+            role: h.role === 'assistant' || h.role === 'model' ? 'model' : 'user',
+            parts: h.parts || [{ text: h.content || '' }]
         }))
     });
 
-    let result = await chat.sendMessage(message);
+    let result;
+    try {
+        result = await chat.sendMessage(message);
+    } catch (e: any) {
+        console.error('Gemini SendMessage Error:', e);
+        throw new Error(`Gemini API Error: ${e.message || 'Unknown error'}`);
+    }
+    
     let call = result.response.functionCalls()?.[0];
 
     // Handle Function Calling Loop

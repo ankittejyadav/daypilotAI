@@ -33,23 +33,31 @@
         await scrollToBottom();
 
         try {
-            // We pass the history to the API. 
-            // The API expects role/content format, which Gemini then converts.
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMessage,
-                    history: messages.slice(0, -1) // Exclude the message we just added
+                    history: messages.slice(0, -1)
                 })
             });
 
             const data = await response.json();
 
             if (data.error) {
-                messages = [...messages, { role: 'assistant', content: `Error: ${data.error}` }];
+                const errorDetail = data.details ? `: ${data.details}` : '';
+                messages = [...messages, { role: 'assistant', content: `Error: ${data.error}${errorDetail}` }];
             } else {
-                messages = [...messages, { role: 'assistant', content: data.response }];
+                // Synchronize history from backend to include tool calls/responses
+                if (data.history) {
+                    messages = data.history.map(m => ({
+                        role: m.role === 'model' ? 'assistant' : 'user',
+                        content: m.parts?.[0]?.text || '[Complex Interaction]',
+                        parts: m.parts
+                    }));
+                } else {
+                    messages = [...messages, { role: 'assistant', content: data.response }];
+                }
             }
         } catch (e) {
             messages = [...messages, { role: 'assistant', content: 'Sorry, I encountered an error connecting to the AI service.' }];
