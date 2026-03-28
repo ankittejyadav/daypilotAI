@@ -63,13 +63,18 @@ export const load: PageServerLoad = async ({ request, parent }) => {
         // 1. Fetch Calendar Events & Insights
         const calendarRes = await google.calendar.events.list({
             calendarId: 'primary',
-            timeMin: new Date().toISOString(),
+            timeMin: new Date(new Date().setHours(0,0,0,0)).toISOString(),
             maxResults: 10,
             singleEvents: true,
             orderBy: 'startTime'
         });
         calendarEvents = calendarRes.data.items || [];
-        const nextEvent = calendarEvents[0];
+        const now = new Date();
+        const upcomingEvents = calendarEvents.filter(e => {
+            const end = e.end?.dateTime ? new Date(e.end.dateTime) : (e.end?.date ? new Date(e.end.date + 'T23:59:59') : new Date());
+            return end > now;
+        });
+        const nextEvent = upcomingEvents[0];
         
         briefing.nextMeeting = nextEvent ? {
             title: nextEvent.summary as string,

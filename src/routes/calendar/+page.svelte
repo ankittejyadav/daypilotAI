@@ -34,16 +34,29 @@
     };
 
     // Unified timeline from database
-    const timeline = $derived(data.events.length > 0 
-        ? data.events.map(e => ({
-            time: formatTime(e.startTime),
-            title: e.title,
-            team: e.zoomId ? 'Video Call' : 'Solo',
-            context: e.description || 'No additional context provided.',
-            type: e.isUrgent ? 'primary' : 'compact',
-            missing: !e.description
-        }))
-        : mockTimeline);
+    const timeline = $derived(() => {
+        const eventsToMap = data.events.length > 0 ? data.events : [];
+        if (eventsToMap.length === 0) return mockTimeline.map(m => ({ ...m, showDateHeader: false }));
+
+        let lastDate = null;
+        return eventsToMap.map(e => {
+            const dateObj = new Date(e.startTime);
+            const dateStr = dateObj.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+            const showDateHeader = dateStr !== lastDate;
+            lastDate = dateStr;
+            
+            return {
+                time: formatTime(e.startTime),
+                title: e.title,
+                team: e.location || (e.zoomId ? 'Video Call' : 'Solo'),
+                context: e.description || 'No additional context provided.',
+                type: e.isUrgent ? 'primary' : 'compact',
+                missing: !e.description,
+                date: dateStr,
+                showDateHeader
+            };
+        });
+    });
 
     // Unified prep meetings from database
     const prepMeetings = $derived(data.events.filter(e => e.needsPrep).length > 0
@@ -146,7 +159,13 @@
         </div>
         
         <div class="timeline">
-            {#each timeline as item}
+            {#each timeline() as item}
+                {#if item.showDateHeader}
+                    <div class="timeline-date-header">
+                        <span class="label-xs date-text">{item.date}</span>
+                        <div class="line"></div>
+                    </div>
+                {/if}
                 <div class="timeline-row">
                     <div class="time-col">
                         <span class="time-label" class:primary-text={item.type === 'primary'}>{item.time}</span>
@@ -241,6 +260,31 @@
     .primary-btn:active { transform: scale(0.98); }
 
     .timeline { display: flex; flex-direction: column; }
+    
+    .timeline-date-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-date-header .date-text {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--primary);
+        white-space: nowrap;
+        font-size: 0.75rem;
+    }
+
+    .timeline-date-header .line {
+        height: 1px;
+        flex: 1;
+        background: var(--outline-variant);
+        opacity: 0.6;
+    }
+
     .timeline-row { display: flex; gap: 1.5rem; }
     .time-col { display: flex; flex-direction: column; align-items: center; width: 60px; }
     .time-label { font-size: 0.75rem; font-weight: 700; color: var(--outline); }

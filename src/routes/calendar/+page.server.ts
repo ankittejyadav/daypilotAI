@@ -4,6 +4,7 @@ import { parse } from 'cookie';
 import type { PageServerLoad, Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { timeline as mockTimeline } from '$lib/data';
+import { getTodayAtTime } from '$lib/server/dateUtils';
 
 export const load: PageServerLoad = async ({ request }) => {
     const services = getGoogleClient(request);
@@ -13,7 +14,7 @@ export const load: PageServerLoad = async ({ request }) => {
         const mappedEvents = mockTimeline.map((event, index) => ({
             id: index,
             title: event.title,
-            startTime: `2024-10-24T${event.time.replace(' PM', ':00').replace(' AM', ':00')}`,
+            startTime: getTodayAtTime(event.time),
             location: event.team || 'Zoom',
             zoomId: '882-192',
             description: event.context,

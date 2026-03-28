@@ -35,14 +35,18 @@ export const load: PageServerLoad = async ({ request, parent }) => {
             });
 
             const items = res.data.items || [];
-            
             const mappedTasks = items.map(t => {
                 // Format due date logic
                 let dueStr = 'No due date';
                 if (t.due) {
-                    const dueDate = new Date(t.due);
+                    const d = new Date(t.due);
+                    // Google Tasks returns due dates as UTC midnight (e.g., 2026-03-28T00:00:00Z).
+                    // We must use UTC components to resolve the correct "local" date part.
+                    const dueDate = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
                     const now = new Date();
-                    const isToday = dueDate.toDateString() === now.toDateString();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    
+                    const isToday = dueDate.getTime() === today.getTime();
                     dueStr = isToday 
                         ? `Today`
                         : dueDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
