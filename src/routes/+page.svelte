@@ -136,10 +136,6 @@
             </div>
         </div>
     </section>
-
-    <button class="fab-editorial">
-        <span class="material-symbols-outlined">add</span>
-    </button>
 </div>
 
 <style>
@@ -324,33 +320,6 @@
         font-size: 0.5rem;
         font-weight: 800;
         text-anchor: middle;
-    }
-
-    .fab-editorial {
-        position: fixed;
-        bottom: 100px;
-        right: 2rem;
-        width: 64px;
-        height: 64px;
-        border-radius: var(--radius-2xl);
-        background: var(--primary);
-        color: white;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 12px 40px rgba(11, 26, 125, 0.3);
-        cursor: pointer;
-        z-index: 100;
-        transition: transform 0.2s, background 0.2s;
-    }
-
-    .fab-editorial:active {
-        transform: scale(0.9);
-    }
-
-    .fab-editorial span {
-        font-size: 32px;
     }
 
     .glass-premium {

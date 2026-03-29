@@ -120,7 +120,7 @@ const CANDIDATE_MODELS = [
     'gemini-3.1-flash-lite-preview',
     'gemini-3.0-flash',
     'gemini-2.5-flash',
-    'gemini-1.5-flash' // Keep as final fallback
+    'gemini-1.5-flash-latest' // Canonical name for stability
 ];
 
 /**

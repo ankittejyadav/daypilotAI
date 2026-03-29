@@ -5,6 +5,15 @@
     let { data, form } = $props();
     let showAddModal = $state(false);
     let syncing = $state(false);
+    let expandedEvents = $state(new Set());
+
+    const toggleExpand = (id) => {
+        if (expandedEvents.has(id)) {
+            expandedEvents.delete(id);
+        } else {
+            expandedEvents.add(id);
+        }
+    };
 
     const formatTime = (isoString) => {
         if (!isoString) return '';
@@ -46,6 +55,7 @@
             lastDate = dateStr;
             
             return {
+                id: e.id,
                 time: formatTime(e.startTime),
                 title: e.title,
                 team: e.location || (e.zoomId ? 'Video Call' : 'Solo'),
@@ -185,7 +195,21 @@
                                         <p class="italic-text">No previous documents found.</p>
                                     </div>
                                 {:else}
-                                    <p class="context-text">{item.context}</p>
+                                    <div class="context-content">
+                                        <p class="context-text" class:expanded={expandedEvents.has(item.id)}>
+                                            {expandedEvents.has(item.id) || item.context.length <= 150 
+                                                ? item.context 
+                                                : item.context.slice(0, 150) + '...'}
+                                        </p>
+                                        {#if item.context.length > 150}
+                                            <button 
+                                                class="expand-btn" 
+                                                onclick={() => toggleExpand(item.id)}
+                                            >
+                                                {expandedEvents.has(item.id) ? 'Show Less' : 'Read More'}
+                                            </button>
+                                        {/if}
+                                    </div>
                                 {/if}
                             </div>
                         </div>
@@ -232,7 +256,13 @@
 {/if}
 
 <style>
-    .calendar-page { display: flex; flex-direction: column; gap: 2.5rem; }
+    .calendar-page { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 2.5rem; 
+        max-width: 100%;
+        overflow-x: hidden;
+    }
     .section { display: flex; flex-direction: column; gap: 1.5rem; }
     
     .prep-card {
@@ -285,21 +315,44 @@
         opacity: 0.6;
     }
 
-    .timeline-row { display: flex; gap: 1.5rem; }
-    .time-col { display: flex; flex-direction: column; align-items: center; width: 60px; }
+    .timeline-row { display: flex; gap: 1.5rem; width: 100%; }
+    .time-col { display: flex; flex-direction: column; align-items: center; width: 60px; flex-shrink: 0; }
     .time-label { font-size: 0.75rem; font-weight: 700; color: var(--outline); }
     .primary-text { color: var(--primary); }
     .guide-line { flex: 1; width: 1px; background: var(--outline-variant); margin: 8px 0; }
     
-    .event-col { flex: 1; padding-bottom: 2rem; }
+    .event-col { flex: 1; padding-bottom: 2rem; min-width: 0; }
     .event-card { background: var(--surface-container-low); padding: 1.5rem; border-radius: var(--radius-2xl); }
     .event-card.low { background: var(--surface-container-low); opacity: 0.9; }
 
     .team-chip { background: var(--surface-container-highest); font-size: 0.625rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
     .primary-chip { background: var(--primary-fixed); color: var(--on-primary-fixed); }
 
-    .context-box { background: var(--surface-container-lowest); padding: 1rem; border-radius: var(--radius-xl); }
-    .context-text { font-size: 0.875rem; color: var(--on-surface-variant); line-height: 1.6; }
+    .context-box { background: var(--surface-container-lowest); padding: 1rem; border-radius: var(--radius-xl); overflow: hidden; }
+    .context-text { 
+        font-size: 0.875rem; 
+        color: var(--on-surface-variant); 
+        line-height: 1.6; 
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .expand-btn {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 4px 0;
+        margin-top: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .expand-btn:hover {
+        text-decoration: underline;
+    }
 
     .header-actions { display: flex; gap: 1rem; align-items: center; }
 

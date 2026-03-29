@@ -47,8 +47,10 @@
         justify-content: center;
         text-decoration: none;
         color: var(--outline);
-        gap: 4px;
-        padding: 6px 16px;
+        gap: 2px;
+        padding: 6px 8px;
+        flex: 1;
+        min-width: 0;
         border-radius: var(--radius-xl);
         transition: all 0.2s ease-out;
     }
@@ -64,10 +66,24 @@
 
     .nav-label {
         font-family: 'Inter', sans-serif;
-        font-size: 0.625rem;
+        font-size: 0.55rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05rem;
+        letter-spacing: 0.02rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    @media (max-width: 360px) {
+        .nav-item {
+            padding: 6px 4px;
+        }
+        .nav-label {
+            font-size: 0.5rem;
+            letter-spacing: 0;
+        }
     }
 
     .material-symbols-outlined {
