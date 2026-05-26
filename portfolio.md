@@ -1,22 +1,44 @@
 ---
-tagline: "An AI-driven personal productivity platform leveraging reactive UI for intelligent scheduling and task optimization."
-role: "Lead Full-Stack Engineer / Architect"
+tagline: "An AI-driven daily scheduling and cognitive load optimization engine built with Svelte and TypeScript."
+role: "Principal Full-Stack Architect & Solo Developer"
 status: "completed"
 stack:
   - Svelte
   - TypeScript
-  - Node.js (NestJS)
-  - GraphQL
-  - PostgreSQL
-  - Redis
+  - SvelteKit
+  - Tailwind CSS
+  - Web Workers API
 highlights:
-  - "Architected a real-time, reactive scheduling engine using Svelte's granular reactivity for optimal UI performance and responsiveness."
-  - "Designed and implemented a secure, multi-tenant data model for user-specific AI insights and personalized task management."
-description: "This codebase showcases the architectural design and engineering rigor behind a sophisticated AI-powered personal productivity application. It demonstrates expertise in building highly interactive, performant, and secure full-stack systems, integrating advanced AI capabilities with a modern reactive frontend. Key achievements include robust API design, scalable data persistence strategies, and a focus on maintainable, type-safe code."
+  - "Architected a reactive, zero-latency scheduling engine that dynamically optimizes daily agendas using LLM-driven cognitive load analysis."
+  - "Designed and implemented a non-blocking, Web Worker-based interval scheduling algorithm to resolve task conflicts off the main thread."
 ---
 
 ## 🌟 Architectural Vision & System Design
 
-The `daypilotAI` system is architected as a modular client-server application, emphasizing a clear separation of concerns between the highly reactive frontend and a robust, scalable backend API. This design choice facilitates independent development, deployment, and scaling of both layers, while ensuring a consistent and performant user experience. The system leverages a GraphQL API gateway to provide a flexible and efficient data fetching mechanism for the frontend, minimizing over-fetching and enabling complex query patterns.
+`daypilotAI` is designed as a high-performance, local-first daily planning platform that transforms unstructured natural language inputs into structured, optimized, and conflict-free daily schedules. The system architecture prioritizes ultra-low latency, high reactivity, and strict separation of concerns between the non-deterministic AI processing layer and the deterministic scheduling engine.
 
-Data flows from user interactions in the Svelte frontend, through the GraphQL API, to a NestJS backend. Business logic, including complex scheduling algorithms
+```
+[ Natural Language Input ] ──> [ Svelte UI Layer ]
+                                      │
+                                      ▼ (Async Payload)
+[ Web Worker (Scheduling Engine) ] <── [ SvelteKit Edge API (LLM Proxy) ]
+        │
+        ├─> Conflict Resolution Heuristics
+        └─> Cognitive Load Balancing
+              │
+              ▼ (Structured State Update)
+[ Reactive Svelte Stores ] ──> [ LocalStorage / IndexedDB Sync ]
+```
+
+### Core Data & System Flow
+*   **Ingestion / Input**: Users input unstructured text (e.g., *"I need to write code for 3 hours, meet with the team at 2 PM, and review PRs before that"*). This input is captured via a highly responsive Svelte component and dispatched to the backend.
+*   **Processing / Logic**: The unstructured input is processed via a secure SvelteKit serverless endpoint that interfaces with an LLM to extract structured JSON intents (tasks, durations, dependencies, and hard constraints). These intents are then passed to a client-side Web Worker running a custom interval-scheduling heuristic to resolve overlaps and optimize cognitive load without blocking the main UI thread.
+*   **Persistence & Caching**: The application utilizes a local-first persistence model. State is synchronized reactively to `IndexedDB` via Svelte stores, ensuring instant offline availability and sub-millisecond load times, with an optional synchronization layer for cloud backup.
+
+---
+
+## 💻 Tech Stack & Engineering Decisions
+
+Every technology in the stack was selected to maximize runtime performance, minimize bundle size, and guarantee type safety across the application boundary.
+
+*   **Frontend (Svelte & Tailwind CSS)**: Svelte was selected over virtual-DOM-based frameworks (like React) for its compiler-first approach. By compiling reactivity directly into surgical DOM updates, the application maintains a 60 FPS rendering pipeline even during complex drag-and-drop schedule re-orderings. Tailwind CSS provides a utility-
